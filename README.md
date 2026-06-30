@@ -1,5 +1,7 @@
 # GroceryTracker
 
+**[Live demo](https://grocery-tracker-rho.vercel.app)**
+
 A single-page React app for comparing grocery prices across Trader Joe's, Safeway, Target, Lucky's, and Raley's. Data persists in `localStorage`.
 
 ## Features
