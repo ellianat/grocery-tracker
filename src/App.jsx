@@ -4,6 +4,7 @@ import ComparisonTable from './components/ComparisonTable';
 import FrequentItems from './components/FrequentItems';
 import PriceHistoryModal from './components/PriceHistoryModal';
 import { useGroceryData } from './hooks/useGroceryData';
+import { exportToCsv } from './utils/exportCsv';
 import './App.css';
 
 export default function App() {
@@ -41,12 +42,23 @@ export default function App() {
 
           <div className="list-header">
             <h2 className="section-label">All Items</h2>
-            <input
-              className="search-input"
-              placeholder="Search items…"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
+            <div className="list-actions">
+              <input
+                className="search-input"
+                placeholder="Search items…"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+              {data.items.length > 0 && (
+                <button
+                  className="btn-export"
+                  onClick={() => exportToCsv(data.items)}
+                  title="Download price history as CSV"
+                >
+                  Export CSV
+                </button>
+              )}
+            </div>
           </div>
 
           <ComparisonTable items={filtered} onSelectItem={setSelectedItem} />

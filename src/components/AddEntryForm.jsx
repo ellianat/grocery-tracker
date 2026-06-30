@@ -1,16 +1,20 @@
-import { useState, useRef, useEffect } from 'react';
-import { STORES, TJ } from '../utils/helpers';
+import { useState, useRef } from 'react';
+import { STORES, TJ, UNIT_TYPES } from '../utils/helpers';
 
 export default function AddEntryForm({ items, onAdd }) {
   const [name, setName] = useState('');
   const [store, setStore] = useState(STORES[0]);
   const [price, setPrice] = useState('');
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [unitSize, setUnitSize] = useState('');
+  const [unitType, setUnitType] = useState('oz');
+  const [saleExpiry, setSaleExpiry] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef(null);
 
   const allNames = items.map(i => i.name);
+  const isTJ = store === TJ;
 
   function handleNameChange(val) {
     setName(val);
@@ -19,9 +23,7 @@ export default function AddEntryForm({ items, onAdd }) {
       setShowSuggestions(false);
       return;
     }
-    const matches = allNames.filter(n =>
-      n.toLowerCase().includes(val.toLowerCase())
-    );
+    const matches = allNames.filter(n => n.toLowerCase().includes(val.toLowerCase()));
     setSuggestions(matches);
     setShowSuggestions(matches.length > 0);
   }
@@ -39,14 +41,17 @@ export default function AddEntryForm({ items, onAdd }) {
       itemName: name.trim(),
       store,
       price,
-      date: store === TJ ? null : date,
+      date: isTJ ? null : date,
+      unitSize: unitSize || null,
+      unitType: unitSize ? unitType : null,
+      saleExpiry: (!isTJ && saleExpiry) ? saleExpiry : null,
     });
     setName('');
     setPrice('');
+    setUnitSize('');
+    setSaleExpiry('');
     setDate(new Date().toISOString().slice(0, 10));
   }
-
-  const isTJ = store === TJ;
 
   return (
     <form className="add-form" onSubmit={handleSubmit}>
@@ -109,6 +114,41 @@ export default function AddEntryForm({ items, onAdd }) {
           <div className="field tj-note">
             <label>&nbsp;</label>
             <span className="badge tj-badge">Stable baseline — no date needed</span>
+          </div>
+        )}
+      </div>
+
+      <div className="form-row optional-row">
+        <div className="field">
+          <label>Package Size <span className="optional-label">optional</span></label>
+          <div className="unit-inputs">
+            <input
+              type="number"
+              min="0"
+              step="any"
+              value={unitSize}
+              onChange={e => setUnitSize(e.target.value)}
+              placeholder="e.g. 32"
+              className="unit-size-input"
+            />
+            <select
+              value={unitType}
+              onChange={e => setUnitType(e.target.value)}
+              className="unit-type-select"
+            >
+              {UNIT_TYPES.map(u => <option key={u}>{u}</option>)}
+            </select>
+          </div>
+        </div>
+
+        {!isTJ && (
+          <div className="field">
+            <label>Sale Ends <span className="optional-label">optional</span></label>
+            <input
+              type="date"
+              value={saleExpiry}
+              onChange={e => setSaleExpiry(e.target.value)}
+            />
           </div>
         )}
       </div>

@@ -10,18 +10,42 @@ export const STORE_COLORS = {
   "Raley's": '#9333ea',
 };
 
-// Get the most recent price entry for a dated store
-export function latestPrice(item, store) {
+export const UNIT_TYPES = ['oz', 'fl oz', 'lbs', 'g', 'kg', 'ml', 'L', 'ct'];
+
+// Returns the full latest entry object for a store (handles legacy tjPrice)
+export function latestEntry(item, store) {
   if (store === TJ) {
-    return item.tjPrice ?? null;
+    if (item.tj) return item.tj;
+    if (item.tjPrice != null) return { price: item.tjPrice };
+    return null;
   }
   const entries = item.prices?.[store];
   if (!entries || entries.length === 0) return null;
-  const sorted = [...entries].sort((a, b) => new Date(b.date) - new Date(a.date));
-  return sorted[0].price;
+  return [...entries].sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 }
 
-// Get all prices currently available for an item across stores
+export function latestPrice(item, store) {
+  return latestEntry(item, store)?.price ?? null;
+}
+
+export function calcPricePerUnit(price, unitSize) {
+  const size = Number(unitSize);
+  if (price == null || !unitSize || isNaN(size) || size === 0) return null;
+  return price / size;
+}
+
+// Returns 'expired', 'expiring-soon', or null
+export function saleStatus(entry) {
+  if (!entry?.saleExpiry) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const expiry = new Date(entry.saleExpiry + 'T00:00:00');
+  const diffDays = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+  if (diffDays < 0) return 'expired';
+  if (diffDays <= 3) return 'expiring-soon';
+  return null;
+}
+
 export function allCurrentPrices(item) {
   return STORES.map(store => ({
     store,
@@ -35,9 +59,8 @@ export function cheapestStore(item) {
   return prices.reduce((min, x) => (x.price < min.price ? x : min));
 }
 
-// Frequency: count total number of price entries ever logged for an item
 export function itemFrequency(item) {
-  let count = item.tjPrice != null ? 1 : 0;
+  let count = (item.tj != null || item.tjPrice != null) ? 1 : 0;
   for (const store of DATED_STORES) {
     count += (item.prices?.[store]?.length ?? 0);
   }
@@ -52,4 +75,9 @@ export function formatDate(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr + 'T00:00:00');
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+export function formatUnit(unitSize, unitType) {
+  if (!unitSize) return null;
+  return `${unitSize} ${unitType || ''}`.trim();
 }

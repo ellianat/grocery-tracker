@@ -1,5 +1,35 @@
-import { STORES, latestPrice, cheapestStore, formatPrice, itemFrequency } from '../utils/helpers';
+import {
+  STORES, latestEntry, cheapestStore, formatPrice, formatUnit, calcPricePerUnit, saleStatus, itemFrequency
+} from '../utils/helpers';
 import { STORE_COLORS } from '../utils/helpers';
+
+function SaleStatusBadge({ entry }) {
+  const status = saleStatus(entry);
+  if (!status) return null;
+  if (status === 'expired') {
+    return <span className="sale-badge sale-expired" title="Sale may have ended">Expired</span>;
+  }
+  return <span className="sale-badge sale-expiring" title={`Sale ends ${entry.saleExpiry}`}>Ends soon</span>;
+}
+
+function PriceCell({ item, store, isBest }) {
+  const entry = latestEntry(item, store);
+  if (!entry) return <td className="no-price">—</td>;
+
+  const ppu = calcPricePerUnit(entry.price, entry.unitSize);
+  const unitLabel = formatUnit(entry.unitSize, entry.unitType);
+  const status = saleStatus(entry);
+
+  return (
+    <td className={isBest ? 'best-price' : ''}>
+      <div className="cell-price">{formatPrice(entry.price)}</div>
+      {ppu != null && (
+        <div className="cell-ppu">{formatPrice(ppu)}/{unitLabel?.split(' ').pop() || entry.unitType}</div>
+      )}
+      {status && <SaleStatusBadge entry={entry} />}
+    </td>
+  );
+}
 
 export default function ComparisonTable({ items, onSelectItem }) {
   if (items.length === 0) {
@@ -33,18 +63,14 @@ export default function ComparisonTable({ items, onSelectItem }) {
                     <span className="freq-badge" title="Frequently tracked">★</span>
                   )}
                 </td>
-                {STORES.map(store => {
-                  const p = latestPrice(item, store);
-                  const isBest = best && best.store === store && p !== null;
-                  return (
-                    <td
-                      key={store}
-                      className={isBest ? 'best-price' : p === null ? 'no-price' : ''}
-                    >
-                      {formatPrice(p)}
-                    </td>
-                  );
-                })}
+                {STORES.map(store => (
+                  <PriceCell
+                    key={store}
+                    item={item}
+                    store={store}
+                    isBest={best?.store === store && latestEntry(item, store) !== null}
+                  />
+                ))}
                 <td className="best-cell">
                   {best ? (
                     <span className="best-tag" style={{ background: STORE_COLORS[best.store] }}>

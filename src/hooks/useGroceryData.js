@@ -9,12 +9,7 @@ function generateId() {
 export function useGroceryData() {
   const [data, setData] = useState(() => loadData());
 
-  const persist = useCallback((next) => {
-    setData(next);
-    saveData(next);
-  }, []);
-
-  const addPriceEntry = useCallback(({ itemName, store, price, date }) => {
+  const addPriceEntry = useCallback(({ itemName, store, price, date, unitSize, unitType, saleExpiry }) => {
     const trimmed = itemName.trim();
     if (!trimmed) return;
 
@@ -23,20 +18,34 @@ export function useGroceryData() {
       let item = items.find(i => i.name.toLowerCase() === trimmed.toLowerCase());
 
       if (!item) {
-        item = { id: generateId(), name: trimmed, tjPrice: null, prices: {} };
+        item = { id: generateId(), name: trimmed, tj: null, tjPrice: null, prices: {} };
         items.push(item);
       } else {
-        // work on a copy
         const idx = items.indexOf(item);
         item = { ...item, prices: { ...item.prices } };
         items[idx] = item;
       }
 
+      const parsedUnit = unitSize ? Number(unitSize) : null;
+      const resolvedUnitType = parsedUnit ? (unitType || null) : null;
+
       if (store === TJ) {
+        item.tj = {
+          price: parseFloat(price),
+          unitSize: parsedUnit,
+          unitType: resolvedUnitType,
+        };
+        // keep for backward compat with old localStorage data
         item.tjPrice = parseFloat(price);
       } else {
         const existing = item.prices[store] ? [...item.prices[store]] : [];
-        existing.push({ price: parseFloat(price), date });
+        existing.push({
+          price: parseFloat(price),
+          date,
+          unitSize: parsedUnit,
+          unitType: resolvedUnitType,
+          saleExpiry: saleExpiry || null,
+        });
         item.prices[store] = existing;
       }
 
@@ -58,7 +67,7 @@ export function useGroceryData() {
     setData(prev => {
       const items = prev.items.map(item => {
         if (item.id !== itemId) return item;
-        if (store === TJ) return { ...item, tjPrice: null };
+        if (store === TJ) return { ...item, tj: null, tjPrice: null };
         const updated = [...(item.prices[store] || [])];
         updated.splice(entryIndex, 1);
         return { ...item, prices: { ...item.prices, [store]: updated } };

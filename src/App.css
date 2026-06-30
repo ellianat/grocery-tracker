@@ -376,6 +376,78 @@ body {
 }
 .btn-danger:hover { background: #fecaca; }
 
+/* ─── Unit inputs ─── */
+.optional-row { border-top: 1px dashed var(--border); padding-top: 14px; margin-top: 2px; }
+.optional-label {
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  color: #b0a898;
+  margin-left: 4px;
+}
+.unit-inputs { display: flex; gap: 6px; }
+.unit-size-input { flex: 1; min-width: 0; }
+.unit-type-select { width: 76px; flex-shrink: 0; }
+
+/* ─── Table price cells ─── */
+.cell-price { font-weight: 600; }
+.cell-ppu {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.best-price .cell-ppu { color: #15803d; }
+
+/* ─── Sale badges ─── */
+.sale-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-top: 3px;
+  letter-spacing: 0.2px;
+}
+.sale-expiring { background: #fef3c7; color: #92400e; }
+.sale-expired  { background: #fee2e2; color: #991b1b; }
+
+/* ─── History entry extras ─── */
+.history-unit {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.unit-info {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.expiry-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+.expiry-ok     { background: #f0fdf4; color: #15803d; }
+.expiry-soon   { background: #fef3c7; color: #92400e; }
+.expiry-expired { background: #fee2e2; color: #991b1b; }
+
+/* ─── List header actions ─── */
+.list-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.btn-export {
+  height: 36px;
+  padding: 0 14px;
+  background: var(--surface);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.btn-export:hover { border-color: var(--accent); color: var(--accent); }
+
 /* ─── Mobile ─── */
 @media (max-width: 640px) {
   .app-main { padding: 16px 12px 48px; gap: 20px; }
@@ -387,4 +459,6 @@ body {
   .modal-body { padding: 16px; }
   .search-input { width: 100%; }
   .list-header { flex-direction: column; align-items: flex-start; }
+  .list-actions { width: 100%; }
+  .search-input { flex: 1; }
 }
