@@ -9,16 +9,20 @@ function generateId() {
 export function useGroceryData() {
   const [data, setData] = useState(() => loadData());
 
-  const addPriceEntry = useCallback(({ itemName, store, price, date, unitSize, unitType, saleExpiry }) => {
+  const addPriceEntry = useCallback(({ itemName, store, price, date, unitSize, unitType, saleExpiry, isOrganic }) => {
     const trimmed = itemName.trim();
     if (!trimmed) return;
 
     setData(prev => {
       const items = [...prev.items];
-      let item = items.find(i => i.name.toLowerCase() === trimmed.toLowerCase());
+      // Match by name AND organic variant — they're separate items
+      let item = items.find(i =>
+        i.name.toLowerCase() === trimmed.toLowerCase() &&
+        !!i.isOrganic === !!isOrganic
+      );
 
       if (!item) {
-        item = { id: generateId(), name: trimmed, tj: null, tjPrice: null, prices: {} };
+        item = { id: generateId(), name: trimmed, isOrganic: !!isOrganic, tj: null, tjPrice: null, prices: {} };
         items.push(item);
       } else {
         const idx = items.indexOf(item);
@@ -35,7 +39,6 @@ export function useGroceryData() {
           unitSize: parsedUnit,
           unitType: resolvedUnitType,
         };
-        // keep for backward compat with old localStorage data
         item.tjPrice = parseFloat(price);
       } else {
         const existing = item.prices[store] ? [...item.prices[store]] : [];

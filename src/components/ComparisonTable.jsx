@@ -2,6 +2,7 @@ import {
   STORES, latestEntry, cheapestStore, formatPrice, formatUnit, calcPricePerUnit, saleStatus, itemFrequency
 } from '../utils/helpers';
 import { STORE_COLORS } from '../utils/helpers';
+import OrganicBadge from './OrganicBadge';
 
 function SaleStatusBadge({ entry }) {
   const status = saleStatus(entry);
@@ -18,7 +19,6 @@ function PriceCell({ item, store, isBest }) {
 
   const ppu = calcPricePerUnit(entry.price, entry.unitSize);
   const unitLabel = formatUnit(entry.unitSize, entry.unitType);
-  const status = saleStatus(entry);
 
   return (
     <td className={isBest ? 'best-price' : ''}>
@@ -26,7 +26,7 @@ function PriceCell({ item, store, isBest }) {
       {ppu != null && (
         <div className="cell-ppu">{formatPrice(ppu)}/{unitLabel?.split(' ').pop() || entry.unitType}</div>
       )}
-      {status && <SaleStatusBadge entry={entry} />}
+      {<SaleStatusBadge entry={entry} />}
     </td>
   );
 }
@@ -59,6 +59,7 @@ export default function ComparisonTable({ items, onSelectItem }) {
               <tr key={item.id} className="item-row" onClick={() => onSelectItem(item)}>
                 <td className="item-name">
                   {item.name}
+                  {item.isOrganic && <OrganicBadge />}
                   {itemFrequency(item) >= 3 && (
                     <span className="freq-badge" title="Frequently tracked">★</span>
                   )}

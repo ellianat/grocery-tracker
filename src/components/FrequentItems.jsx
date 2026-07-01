@@ -1,5 +1,6 @@
 import { itemFrequency, cheapestStore, formatPrice } from '../utils/helpers';
 import { STORE_COLORS } from '../utils/helpers';
+import OrganicBadge from './OrganicBadge';
 
 export default function FrequentItems({ items, onSelectItem }) {
   const frequent = [...items]
@@ -18,6 +19,7 @@ export default function FrequentItems({ items, onSelectItem }) {
           return (
             <button key={item.id} className="freq-chip" onClick={() => onSelectItem(item)}>
               <span className="freq-name">{item.name}</span>
+              {item.isOrganic && <OrganicBadge />}
               {best && (
                 <span className="freq-price" style={{ color: STORE_COLORS[best.store] }}>
                   {formatPrice(best.price)}

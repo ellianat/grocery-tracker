@@ -4,6 +4,7 @@ import {
 import {
   DATED_STORES, TJ, STORE_COLORS, formatPrice, formatDate, formatUnit, calcPricePerUnit, saleStatus, latestEntry
 } from '../utils/helpers';
+import OrganicBadge from './OrganicBadge';
 
 function buildChartData(item) {
   const dateSet = new Set();
@@ -26,7 +27,7 @@ function buildChartData(item) {
   });
 }
 
-function SaleExpiryRow({ saleExpiry }) {
+function SaleExpiryTag({ saleExpiry }) {
   if (!saleExpiry) return null;
   const status = saleStatus({ saleExpiry });
   const label = status === 'expired' ? 'Sale ended' : 'Sale ends';
@@ -45,7 +46,10 @@ export default function PriceHistoryModal({ item, onClose, onDeleteItem, onDelet
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal">
         <div className="modal-header">
-          <h2>{item.name}</h2>
+          <h2>
+            {item.name}
+            {item.isOrganic && <OrganicBadge />}
+          </h2>
           <button className="close-btn" onClick={onClose}>✕</button>
         </div>
 
@@ -138,7 +142,7 @@ export default function PriceHistoryModal({ item, onClose, onDeleteItem, onDelet
                             {ppu != null && ` · ${formatPrice(ppu)}/${e.unitType}`}
                           </span>
                         )}
-                        {e.saleExpiry && <SaleExpiryRow saleExpiry={e.saleExpiry} />}
+                        {e.saleExpiry && <SaleExpiryTag saleExpiry={e.saleExpiry} />}
                         <button
                           className="delete-entry-btn"
                           onClick={() => onDeleteEntry(item.id, store, item.prices[store].indexOf(e))}

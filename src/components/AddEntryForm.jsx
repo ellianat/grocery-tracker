@@ -9,11 +9,13 @@ export default function AddEntryForm({ items, onAdd }) {
   const [unitSize, setUnitSize] = useState('');
   const [unitType, setUnitType] = useState('oz');
   const [saleExpiry, setSaleExpiry] = useState('');
+  const [isOrganic, setIsOrganic] = useState(false);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef(null);
 
-  const allNames = items.map(i => i.name);
+  // Deduplicate names so both "Milk" variants don't appear twice
+  const allNames = [...new Set(items.map(i => i.name))];
   const isTJ = store === TJ;
 
   function handleNameChange(val) {
@@ -45,11 +47,13 @@ export default function AddEntryForm({ items, onAdd }) {
       unitSize: unitSize || null,
       unitType: unitSize ? unitType : null,
       saleExpiry: (!isTJ && saleExpiry) ? saleExpiry : null,
+      isOrganic,
     });
     setName('');
     setPrice('');
     setUnitSize('');
     setSaleExpiry('');
+    setIsOrganic(false);
     setDate(new Date().toISOString().slice(0, 10));
   }
 
@@ -66,6 +70,7 @@ export default function AddEntryForm({ items, onAdd }) {
             onChange={e => handleNameChange(e.target.value)}
             onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
             onFocus={() => name && setSuggestions(allNames.filter(n => n.toLowerCase().includes(name.toLowerCase())))}
+            onKeyDown={e => e.key === 'Escape' && (setSuggestions([]), setShowSuggestions(false))}
             placeholder="e.g. Almond Milk"
             autoComplete="off"
           />
@@ -80,10 +85,21 @@ export default function AddEntryForm({ items, onAdd }) {
 
         <div className="field">
           <label>Store</label>
-          <select value={store} onChange={e => setStore(e.target.value)}>
+          <select value={store} onChange={e => { setStore(e.target.value); setShowSuggestions(false); }}>
             {STORES.map(s => <option key={s}>{s}</option>)}
           </select>
         </div>
+      </div>
+
+      <div className="form-row organic-row">
+        <label className="organic-toggle">
+          <input
+            type="checkbox"
+            checked={isOrganic}
+            onChange={e => setIsOrganic(e.target.checked)}
+          />
+          <span className="organic-check">Organic</span>
+        </label>
       </div>
 
       <div className="form-row">

@@ -1,4 +1,4 @@
-import { STORES, TJ, DATED_STORES, calcPricePerUnit } from './helpers';
+import { DATED_STORES, TJ, calcPricePerUnit } from './helpers';
 
 function escape(val) {
   if (val == null || val === '') return '';
@@ -11,18 +11,20 @@ function escape(val) {
 
 export function exportToCsv(items) {
   const headers = [
-    'Item Name', 'Store', 'Price', 'Package Size', 'Unit', 'Price Per Unit', 'Date Entered', 'Sale Expiry Date'
+    'Item Name', 'Organic', 'Store', 'Price', 'Package Size', 'Unit', 'Price Per Unit', 'Date Entered', 'Sale Expiry Date'
   ];
 
   const rows = [headers.map(escape).join(',')];
 
   for (const item of items) {
-    // Trader Joe's entry
+    const organicVal = item.isOrganic ? 'Yes' : 'No';
+
     const tj = item.tj || (item.tjPrice != null ? { price: item.tjPrice } : null);
     if (tj) {
       const ppu = calcPricePerUnit(tj.price, tj.unitSize);
       rows.push([
         item.name,
+        organicVal,
         TJ,
         tj.price != null ? tj.price.toFixed(2) : '',
         tj.unitSize ?? '',
@@ -33,12 +35,12 @@ export function exportToCsv(items) {
       ].map(escape).join(','));
     }
 
-    // Dated store entries
     for (const store of DATED_STORES) {
       for (const e of (item.prices?.[store] || [])) {
         const ppu = calcPricePerUnit(e.price, e.unitSize);
         rows.push([
           item.name,
+          organicVal,
           store,
           e.price != null ? e.price.toFixed(2) : '',
           e.unitSize ?? '',
