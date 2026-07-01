@@ -1,4 +1,4 @@
-export const STORES = ["Trader Joe's", "Safeway", "Target", "Lucky's", "Raley's"];
+export const STORES = ["Trader Joe's", "Safeway", "Target", "Lucky's", "Raley's", "Costco"];
 export const TJ = "Trader Joe's";
 export const DATED_STORES = STORES.filter(s => s !== TJ);
 
@@ -8,6 +8,7 @@ export const STORE_COLORS = {
   "Target": '#dc2626',
   "Lucky's": '#16a34a',
   "Raley's": '#9333ea',
+  "Costco": '#0891b2',
 };
 
 export const UNIT_TYPES = ['oz', 'fl oz', 'lbs', 'g', 'kg', 'ml', 'L', 'ct'];
